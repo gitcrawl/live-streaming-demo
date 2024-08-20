@@ -210,7 +210,12 @@ function playIdleVideo() {
   videoElement.classList.toggle("animated")
 
   videoElement.srcObject = undefined;
-  videoElement.src = 'emma_idle.mp4';
+  videoElement.src = 'mrgreen4.mp4' //mr green full body
+  //'https://agents-results.d-id.com/auth0%7C66551130afa963d3b2c704a4/agt_rXVCHL9a/idle_1723006958521.mp4' //mr green 3
+  //'https://agents-results.d-id.com/auth0%7C66551130afa963d3b2c704a4/agt_rhygDU9d/idle_1723001126464.mp4' //mr green 2.0
+  // 'https://agents-results.d-id.com/auth0|66551130afa963d3b2c704a4/agt_EQEYgniM/idle_1716856950157.mp4' 
+  //'emma_idle.mp4'; //root directory or source url for the mp4 loop file
+
   videoElement.loop = true;
 
   // Remove Animation Class after it's completed
@@ -284,7 +289,15 @@ connectButton.onclick = async () => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      source_url: 'https://create-images-results.d-id.com/DefaultPresenters/Emma_f/v1_image.jpeg'
+      source_url: 'https://create-images-results.d-id.com/auth0|66551130afa963d3b2c704a4/upl_nfx7frIl3Ry1MOXxU8vzi/image.png' //mr green extended
+      //'https://create-images-results.d-id.com/auth0|66551130afa963d3b2c704a4/upl_fLumVAg_JINym5itFVCCp/image.png' // mr green 3
+      //'https://create-images-results.d-id.com/auth0|66551130afa963d3b2c704a4/upl_-lzagOv-ZsIFBh2mSLTVT/image.png' //mr green
+      //'https://create-images-results.d-id.com/DefaultPresenters/Emma_f/v1_image.jpeg'
+      //'C:\Users\Tuanng\Desktop\Mr Green VA\live-streaming-demo\emma_idle.png'
+      //'emma_idle.png'
+      //'https://i.pinimg.com/originals/30/58/3b/30583bd5f852dcdd1cbaeef05b58741c.jpg' //matrix 
+      //'https://i.pinimg.com/originals/31/40/91/314091a69b28c1746f0bcb9dfe2db3f5.jpg' //morpheus
+      //this is where you can control output of talking image
     }),
   });
 
@@ -327,7 +340,7 @@ startButton.onclick = async () => {
     let txtAreaValue = document.getElementById("textArea").value
 
     // Clearing the text-box element
-    document.getElementById("textArea").value = ""
+    // document.getElementById("textArea").value = ""
 
 
     // Agents Overview - Step 3: Send a Message to a Chat session - Send a message to a Chat
@@ -356,8 +369,99 @@ startButton.onclick = async () => {
         'msgHistory'
       ).innerHTML += `<span style='opacity:0.5'> ${playResponseData.result}</span><br>`;
     }
+    setTimeout(clearMessage, 3000);
   }
 };
+
+// Adding recording function
+
+const recordButton = document.getElementById('record-button');
+let isMessageSent = false; //Flag to track if the message has been sent
+recordButton.onclick = async () => {
+  if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+    if ('webkitSpeechRecognition' in window)  {
+    const recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+  
+    recognition.onstart = function() {
+      recordButton.disabled = true;
+      // recordButton.textContent = "Listening...";
+      recordButton.classList.add("flashing"); // Start flashing when recording starts
+      isMessageSent = false; // Reset the flag when recording starts
+    };
+  
+    recognition.onresult = function(event) {
+      if (!isMessageSent) { // Check if the message has been sent already
+      const transcript = event.results[0][0].transcript;
+      textArea.value = transcript;
+      // recordButton.textContent = "Record";
+      recordButton.classList.remove("flashing"); //stop flashing when recording stops
+      recordButton.disabled = false;
+
+      // Display the user's message in the chat history
+      // document.getElementById(
+      //   'msgHistory'
+      // ).innerHTML += `<span style='opacity:0.5'><u>User:</u> ${transcript}</span><br>`;
+
+      // Automatically send the message after recording stops
+      startButton.click();
+
+      // Clear the textarea after sending the message
+      // clearMessage();
+
+      // Set the flag to true to prevent multiple sends
+      isMessageSent = true;
+     }
+    };
+  
+    recognition.onerror = function(event) {
+      console.error(event.error);
+      // recordButton.textContent = "Record";
+      recordButton.classList.remove("flashing"); //stop flashing if there's an error
+      recordButton.disabled = false;
+    };
+  
+    recognition.onend = function() {
+      recordButton.disabled = false;
+      // recordButton.textContent = "Record";
+      recordButton.classList.remove("flashing"); // stop flashing when recording ends
+    };
+  
+    recordButton.onclick = function() {
+      recognition.start();
+    };
+    } 
+    else {recordButton.disabled = true;
+      alert('Speech recognition not supported in this browser.');
+    }
+  } else {recordButton.disabled = true;
+    alert('make sure you are connected.');}
+}
+
+// Function to clear the textarea
+function clearMessage(){
+  textArea.value="";
+}
+
+// Function to send the message when "Enter" key is pressed
+textArea.addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault(); // Prevent default behavior of adding a new line
+
+    if (textArea.value.trim() !== "") { // Check if the textarea is not empty
+      // Display the user's message in the chat history
+      // msgHistory.innerHTML += `<span style='opacity:0.5'><u>User:</u> ${textArea.value}</span><br>`;
+
+      // Automatically send the message
+      startButton.click();
+
+      // Clear the textarea
+      textArea.value = "";
+    }
+  }
+});
 
 const destroyButton = document.getElementById('destroy-button');
 destroyButton.onclick = async () => {
@@ -464,16 +568,22 @@ async function agentsAPIworkflow() {
           "type": "microsoft",
           "voice_id": "en-US-JennyMultilingualV2Neural"
         },
-        "thumbnail": "https://create-images-results.d-id.com/DefaultPresenters/Emma_f/v1_image.jpeg",
-        "source_url": "https://create-images-results.d-id.com/DefaultPresenters/Emma_f/v1_image.jpeg"
+          "thumbnail":"https://create-images-results.d-id.com/auth0|66551130afa963d3b2c704a4/upl_nfx7frIl3Ry1MOXxU8vzi/thumbnail.jpeg", //mr green extended
+          "source_url": "https://create-images-results.d-id.com/auth0|66551130afa963d3b2c704a4/upl_nfx7frIl3Ry1MOXxU8vzi/image.png" //mr green extended
+          //"thumbnail": "https://create-images-results.d-id.com/auth0|66551130afa963d3b2c704a4/upl_-lzagOv-ZsIFBh2mSLTVT/thumbnail.jpeg", //mr green
+          //"source_url": "https://create-images-results.d-id.com/auth0|66551130afa963d3b2c704a4/upl_-lzagOv-ZsIFBh2mSLTVT/image.png"
+        //"thumbnail": "https://create-images-results.d-id.com/DefaultPresenters/Emma_f/v1_image.jpeg",
+        //"source_url": "https://create-images-results.d-id.com/DefaultPresenters/Emma_f/v1_image.jpeg"
+         // "thumbnail": "https://i.pinimg.com/originals/30/58/3b/30583bd5f852dcdd1cbaeef05b58741c.jpg", //matrix
+          //"source_url" : "https://i.pinimg.com/originals/30/58/3b/30583bd5f852dcdd1cbaeef05b58741c.jpg" 
       },
       "llm": {
         "type": "openai",
         "provider": "openai",
-        "model": "gpt-3.5-turbo-1106",
-        "instructions": "Your name is Emma, an AI designed to assist with information about Prompt Engineering and RAG"
+        "model": "gpt-4o-mini",
+        "instructions": "The agent is to be friendly and conversational, it feels like chatting to a friend."
       },
-      "preview_name": "Emma"
+      "preview_name": "Mr Green"
     }
 
   )
@@ -516,5 +626,5 @@ agentsButton.onclick = async () => {
 }
 
 // Paste Your Created Agent and Chat IDs Here:
-agentId = ""
-chatId = ""
+agentId = "agt_EQEYgniM"
+chatId = "" //cht_bAHtu_1dNA3EttKbzM1m6

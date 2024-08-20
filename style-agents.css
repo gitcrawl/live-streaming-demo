@@ -61,14 +61,15 @@
 }
 
 #agentId-label, #chatId-label{
-  color: green;
+  color: rgb(6, 12, 6);
 }
 
 /* added css from here */
 
-body * {
+body  {
   font-family: 'Mulish', sans-serif;
   text-align: center;
+  background-color: rgb(243, 231, 231);
 }
 
 #content {
@@ -111,6 +112,10 @@ button:hover, #destroy-button:hover,#connect-button:hover {
   transition: all 0.2s ease-out;
 }
 
+h3{
+  color: white;
+}
+
 h4{
   margin: 0;
   margin-bottom: 10px;
@@ -146,23 +151,67 @@ textarea {
 
 #video-wrapper {
   /* height: 500px; */
-  width: 400px;
-  height: 400px;
+  width: 675px;
+  height: 600px;
   background-position: top;
 }
+
+/* #spacing {
+  height: 10px; 
+} */
+
+#spacingtext {
+  height: 400px; 
+}
+
+/* #myVideo {
+  width: 100%;
+  height: 600px;
+} */
 
 .chat{
   width: 400px;
+  margin: auto;
 }
 
+/* mic button  */
+
+.mic-button {
+  background-color: #ff0037;
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.mic-button .fas {
+  animation: none; /* No animation by default */
+}
+
+.mic-button.flashing .fas {
+  animation: flash 1s infinite; /* Add flashing animation when active */
+}
+
+@keyframes flash {
+  0%, 100% {
+    color: white;
+  }
+  50% {
+    color: red;
+  }
+}
 
 video {
   /* display: block; */
-  border-radius: 50%;
-  background-image: url("emma_idle.png");
+  /* border-radius: 100px; */
+  background-image: url("matrix_idle.png");
+  /* "emma_idle.png" */
   background-position: top;
   /* position: absolute; */
-  background-size: contain;
+  background-size: stretch;
 }
 
 .animated {
