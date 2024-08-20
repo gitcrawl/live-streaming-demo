@@ -41,7 +41,7 @@ window.onload = (event) => {
   } else {
     console.log("You are good to go!\nClick on the 'Connect Button', Then send a new message\nAgent ID: ", agentId, "\nChat ID: ", chatId)
     agentIdLabel.innerHTML = agentId
-    chatIdLabel.innerHTML = chatId
+    chatIdLabel.innerHTML = chatId //`${chatId}`
   }
 }
 async function createPeerConnection(offer, iceServers) {
@@ -281,8 +281,8 @@ connectButton.onclick = async () => {
   stopAllStreams();
   closePC();
 
-  // WEBRTC API CALL 1 - Create a new stream
-  const sessionResponse = await fetchWithRetries(`${DID_API.url}/${DID_API.service}/streams`, {
+  // WEBRTC API CALL 1 - Create a new stream //${DID_API.url}/${DID_API.service}/streams
+  const sessionResponse = await fetchWithRetries(`https://api.d-id.com/talks/streams`, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${DID_API.key}`,
@@ -301,7 +301,25 @@ connectButton.onclick = async () => {
     }),
   });
 
+  //create new chatID session
+  const chatidResponse = await fetchWithRetries(`https://api.d-id.com/agents/agt_EQEYgniM/chat`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${DID_API.key}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+    }),
+  });
 
+  // new chat ID define
+  const { id: newchatId } = await chatidResponse.json();
+  chatId = newchatId;
+
+  // Update the chatId label immediately after setting it
+  chatIdLabel.innerHTML = chatId;
+
+// new session ID
   const { id: newStreamId, offer, ice_servers: iceServers, session_id: newSessionId } = await sessionResponse.json();
   streamId = newStreamId;
   sessionId = newSessionId;
@@ -626,5 +644,5 @@ agentsButton.onclick = async () => {
 }
 
 // Paste Your Created Agent and Chat IDs Here:
-agentId = "" //agt_EQEYgniM
-chatId = "" //cht_bAHtu_1dNA3EttKbzM1m6
+agentId = "agt_EQEYgniM" //
+chatId = `${chatId}` //"cht_dxgmL5kQeLbI0ZY8Gu9IZ"
