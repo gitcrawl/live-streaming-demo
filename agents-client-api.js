@@ -36,6 +36,8 @@ window.onload = (event) => {
 
   playIdleVideo()
 
+  connectButton.style.backgroundColor = 'red'; // Initialize as red
+
   if (agentId == "" || agentId == undefined) {
     console.log("Empty 'agentID' and 'chatID' variables\n\n1. Click on the 'Create new Agent with Knowledge' button\n2. Open the Console and wait for the process to complete\n3. Press on the 'Connect' button\n4. Type and send a message to the chat\nNOTE: You can store the created 'agentID' and 'chatId' variables at the bottom of the JS file for future chats")
   } else {
@@ -133,6 +135,13 @@ function onConnectionStateChange() {
   // not supported in firefox
   peerStatusLabel.innerText = peerConnection.connectionState;
   peerStatusLabel.className = 'peerConnectionState-' + peerConnection.connectionState;
+
+  // Change the connect button color based on the connection state
+  if (peerConnection.connectionState === 'connected') {
+    connectButton.style.backgroundColor = 'green';
+  } else if (peerConnection.connectionState === 'failed' || peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'closed') {
+    connectButton.style.backgroundColor = 'red';
+  }
 }
 function onSignalingStateChange() {
   signalingStatusLabel.innerText = peerConnection.signalingState;
