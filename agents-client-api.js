@@ -66,7 +66,6 @@ async function createPeerConnection(offer, iceServers) {
   await peerConnection.setLocalDescription(sessionClientAnswer);
   console.log('set local sdp OK');
 
-
   // Data Channel creation (for dispalying the Agent's responses as text)
   let dc = await peerConnection.createDataChannel("JanusDataChannel");
   dc.onopen = () => {
