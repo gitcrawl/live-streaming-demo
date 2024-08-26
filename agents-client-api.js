@@ -652,5 +652,11 @@ agentsButton.onclick = async () => {
 }
 
 // Paste Your Created Agent and Chat IDs Here:
-agentId = "agt_EQEYgniM" //
+agentId = "agt_Gw7YP_SR"
 chatId = `${chatId}` //"cht_dxgmL5kQeLbI0ZY8Gu9IZ"
+
+// Z3JvdW5kY3Jld0BsYXVuY2hwYWRjZW50cmUuY29t:cnqyLbSYQAyH0GtpBxYYs ground crew api
+// agt_EQEYgniM mr green ground crew
+
+// dHVhbm5nMDEudG5AZ21haWwuY29t:DUKEq9OFlFc1KixCbq13G google api
+// agt_Gw7YP_SR mr green personal
