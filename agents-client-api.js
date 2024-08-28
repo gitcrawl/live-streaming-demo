@@ -668,6 +668,8 @@ chatId = `${chatId}` //"cht_dxgmL5kQeLbI0ZY8Gu9IZ"
 // dHVhbm5nMDEudG5AZ21haWwuY29t:DUKEq9OFlFc1KixCbq13G google api
 // agt_Gw7YP_SR mr green personal
 
+
+
 // Initialize speech recognition
 if ('webkitSpeechRecognition' in window) {
   const recognition = new webkitSpeechRecognition();
