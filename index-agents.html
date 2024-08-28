@@ -144,25 +144,9 @@
                 cameraStream.srcObject = stream;
                 cameraStream.onloadedmetadata = () => {
                   cameraStream.play();
-                  detectFrame(cameraStream, model);
+                  // detectFrame(cameraStream, model);
                 };
               });
-              // Detect a person in each frame
-              function detectFrame(video, model) {
-                model.detect(video).then(predictions => {
-                  let personDetected = predictions.some(prediction => prediction.class === 'person' && prediction.score > 0.1);
-        
-                  if (personDetected) {
-                    // Stop camera stream
-                    stream.getTracks().forEach(track => track.stop());
-                    // Show and play the video
-                    videoElement2.style.display = "block";
-                    videoElement2.play();
-                  } else {
-                    requestAnimationFrame(() => detectFrame(video, model));
-                  }
-                });
-              }
             });
           </script>
         </div>
@@ -171,6 +155,23 @@
     </div>
 
  
+    <!-- // Detect a person in each frame
+   
+    function detectFrame(video, model) {
+      model.detect(video).then(predictions => {
+        let personDetected = predictions.some(prediction => prediction.class === 'person' && prediction.score > 0.1);
+
+        if (personDetected) {
+          // Stop camera stream
+          stream.getTracks().forEach(track => track.stop());
+          // Show and play the video
+          videoElement2.style.display = "block";
+          videoElement2.play();
+        } else {
+          requestAnimationFrame(() => detectFrame(video, model));
+        }
+      });
+    } -->
 
     <!-- <video autoplay muted loop id="myvideo">
        <source src="https://agents-results.d-id.com/auth0|66551130afa963d3b2c704a4/agt_EQEYgniM/idle_1716856950157.mp4">
