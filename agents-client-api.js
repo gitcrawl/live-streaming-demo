@@ -453,6 +453,13 @@ recordButton.onclick = async () => {
       recordButton.disabled = false;
       // recordButton.textContent = "Record";
       recordButton.classList.remove("flashing"); // stop flashing when recording ends
+      
+        // Delay the restart of speech recognition by 3 seconds (3000 milliseconds)
+        setTimeout(() => {
+        if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+          recognition.start();
+        }
+      }, 2000); // Adjust the delay time as needed
     };
   
     recordButton.onclick = function() {
