@@ -34,7 +34,7 @@ const textArea = document.getElementById("textArea");
 // Play the idle video when the page is loaded
 window.onload = (event) => {
 
-  playIdleVideo()
+  playIdleVideo();
 
   connectButton.style.backgroundColor = 'red'; // Initialize as red
 
@@ -661,9 +661,6 @@ chatId = `${chatId}` //"cht_dxgmL5kQeLbI0ZY8Gu9IZ"
 // dHVhbm5nMDEudG5AZ21haWwuY29t:DUKEq9OFlFc1KixCbq13G google api
 // agt_Gw7YP_SR mr green personal
 
-const cameraStream = document.getElementById('camera-stream');
-const videoElement2 = document.getElementById('video-element2');
-
 // Initialize speech recognition
 if ('webkitSpeechRecognition' in window) {
   const recognition = new webkitSpeechRecognition();
@@ -679,9 +676,14 @@ if ('webkitSpeechRecognition' in window) {
     const transcript = event.results[0][0].transcript.trim().toLowerCase();
     console.log("You said: " + transcript);
 
-    if (transcript.includes("hello")) {
+    if (transcript.includes("hello mr green")) {
       triggerVideoPlayback();
-    }
+    } else if (transcript.includes("connect launchpad")) {
+      recognition.onend = function () {
+        console.log("Speech recognition ended.");
+      };
+      triggerConnect();
+      }
   };
 
   recognition.onerror = function(event) {
@@ -721,7 +723,6 @@ function playVideo() {
   }
 }
 
-
 function stopIdleVideo() {
   // Hide and stop the idle video
   videoElement.style.display = "none";
@@ -731,6 +732,7 @@ function stopIdleVideo() {
 
 function resumeIdleVideo() {
   // Resume the idle video
+  videoElement2.style.display = "none";
   videoElement.style.display = "block";
   playIdleVideo();
 }
@@ -745,7 +747,33 @@ function triggerVideoPlayback() {
 
   // Listen for the video end event to resume idle video
   videoElement2.onended = () => {
-    videoElement2.style.display = "none";
     resumeIdleVideo();
   };
+}
+
+
+
+
+// Function to trigger the connect button and handle post-connection actions
+function triggerConnect() {
+  console.log("Connecting to Launchpad...");
+  connectButton.click(); // Simulates a click on the connect button
+
+  // Add event listener to check when the connection is established
+  connectButton.addEventListener('click', function() {
+    // Simulate connection status change after a short delay (e.g., 3 seconds)
+    setTimeout(() => {
+      // Assuming connection was successful, change the button color to green
+      connectButton.style.backgroundColor = 'green';
+
+      // Automatically activate the microphone button after connection
+      activateMicrophone();
+    }, 3000); // Adjust the delay to match the actual connection time
+  });
+}
+
+// Function to activate the microphone button
+function activateMicrophone() {
+  console.log("Activating microphone...");
+  recordButton.click(); // Simulates a click on the microphone button
 }
