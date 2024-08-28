@@ -752,8 +752,6 @@ function triggerVideoPlayback() {
 }
 
 
-
-
 // Function to trigger the connect button and handle post-connection actions
 function triggerConnect() {
   console.log("Connecting to Launchpad...");
