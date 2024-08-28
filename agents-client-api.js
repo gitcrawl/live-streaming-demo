@@ -660,3 +660,92 @@ chatId = `${chatId}` //"cht_dxgmL5kQeLbI0ZY8Gu9IZ"
 
 // dHVhbm5nMDEudG5AZ21haWwuY29t:DUKEq9OFlFc1KixCbq13G google api
 // agt_Gw7YP_SR mr green personal
+
+const cameraStream = document.getElementById('camera-stream');
+const videoElement2 = document.getElementById('video-element2');
+
+// Initialize speech recognition
+if ('webkitSpeechRecognition' in window) {
+  const recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+
+  recognition.onstart = function() {
+    console.log("Voice recognition started. Try speaking into the microphone.");
+  };
+
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript.trim().toLowerCase();
+    console.log("You said: " + transcript);
+
+    if (transcript.includes("hello")) {
+      triggerVideoPlayback();
+    }
+  };
+
+  recognition.onerror = function(event) {
+    console.error("Speech recognition error:", event.error);
+  };
+
+  recognition.onend = function() {
+    // Restart recognition automatically
+    recognition.start();
+  };
+
+  // Start the speech recognition
+  recognition.start();
+} else {
+  console.warn("Speech recognition not supported in this browser.");
+}
+
+// Function to play the video
+function playVideo() {
+  if (videoElement2.style.display === "none") {
+    stopIdleVideo();
+    // Stop the camera stream if it's playing
+    if (cameraStream.srcObject) {
+      let stream = cameraStream.srcObject;
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    // Show and play the video
+    videoElement2.style.display = "block";
+    videoElement2.play();
+
+    // When the video ends, hide the video element and show the original animation
+    videoElement2.onended = function() {
+      videoElement2.style.display = "none";
+      resumeIdleVideo();
+    };
+  }
+}
+
+
+function stopIdleVideo() {
+  // Hide and stop the idle video
+  videoElement.style.display = "none";
+  videoElement.pause();
+  videoElement.srcObject = null;
+}
+
+function resumeIdleVideo() {
+  // Resume the idle video
+  videoElement.style.display = "block";
+  playIdleVideo();
+}
+
+function triggerVideoPlayback() {
+  // Stop the idle video
+  stopIdleVideo();
+
+  // Play the selected video
+  videoElement2.style.display = "block";
+  videoElement2.play();
+
+  // Listen for the video end event to resume idle video
+  videoElement2.onended = () => {
+    videoElement2.style.display = "none";
+    resumeIdleVideo();
+  };
+}
