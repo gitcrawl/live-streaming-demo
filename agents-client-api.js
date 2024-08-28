@@ -34,14 +34,16 @@ const textArea = document.getElementById("textArea");
 // Play the idle video when the page is loaded
 window.onload = (event) => {
 
-  playIdleVideo()
+  playIdleVideo();
+
+  connectButton.style.backgroundColor = 'red'; // Initialize as red
 
   if (agentId == "" || agentId == undefined) {
     console.log("Empty 'agentID' and 'chatID' variables\n\n1. Click on the 'Create new Agent with Knowledge' button\n2. Open the Console and wait for the process to complete\n3. Press on the 'Connect' button\n4. Type and send a message to the chat\nNOTE: You can store the created 'agentID' and 'chatId' variables at the bottom of the JS file for future chats")
   } else {
     console.log("You are good to go!\nClick on the 'Connect Button', Then send a new message\nAgent ID: ", agentId, "\nChat ID: ", chatId)
     agentIdLabel.innerHTML = agentId
-    chatIdLabel.innerHTML = chatId
+    chatIdLabel.innerHTML = chatId //`${chatId}`
   }
 }
 async function createPeerConnection(offer, iceServers) {
@@ -63,7 +65,6 @@ async function createPeerConnection(offer, iceServers) {
 
   await peerConnection.setLocalDescription(sessionClientAnswer);
   console.log('set local sdp OK');
-
 
   // Data Channel creation (for dispalying the Agent's responses as text)
   let dc = await peerConnection.createDataChannel("JanusDataChannel");
@@ -133,6 +134,13 @@ function onConnectionStateChange() {
   // not supported in firefox
   peerStatusLabel.innerText = peerConnection.connectionState;
   peerStatusLabel.className = 'peerConnectionState-' + peerConnection.connectionState;
+
+  // Change the connect button color based on the connection state
+  if (peerConnection.connectionState === 'connected') {
+    connectButton.style.backgroundColor = 'green';
+  } else if (peerConnection.connectionState === 'failed' || peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'closed') {
+    connectButton.style.backgroundColor = 'red';
+  }
 }
 function onSignalingStateChange() {
   signalingStatusLabel.innerText = peerConnection.signalingState;
@@ -281,8 +289,8 @@ connectButton.onclick = async () => {
   stopAllStreams();
   closePC();
 
-  // WEBRTC API CALL 1 - Create a new stream
-  const sessionResponse = await fetchWithRetries(`${DID_API.url}/${DID_API.service}/streams`, {
+  // WEBRTC API CALL 1 - Create a new stream //${DID_API.url}/${DID_API.service}/streams
+  const sessionResponse = await fetchWithRetries(`https://api.d-id.com/talks/streams`, {
     method: 'POST',
     headers: {
       Authorization: `Basic ${DID_API.key}`,
@@ -301,7 +309,25 @@ connectButton.onclick = async () => {
     }),
   });
 
+  //create new chatID session
+  const chatidResponse = await fetchWithRetries(`https://api.d-id.com/agents/agt_EQEYgniM/chat`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${DID_API.key}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+    }),
+  });
 
+  // new chat ID define
+  const { id: newchatId } = await chatidResponse.json();
+  chatId = newchatId;
+
+  // Update the chatId label immediately after setting it
+  chatIdLabel.innerHTML = chatId;
+
+// new session ID
   const { id: newStreamId, offer, ice_servers: iceServers, session_id: newSessionId } = await sessionResponse.json();
   streamId = newStreamId;
   sessionId = newSessionId;
@@ -427,6 +453,13 @@ recordButton.onclick = async () => {
       recordButton.disabled = false;
       // recordButton.textContent = "Record";
       recordButton.classList.remove("flashing"); // stop flashing when recording ends
+      
+        // Delay the restart of speech recognition by 3 seconds (3000 milliseconds)
+        setTimeout(() => {
+        if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+          recognition.start();
+        }
+      }, 2000); // Adjust the delay time as needed
     };
   
     recordButton.onclick = function() {
@@ -626,5 +659,238 @@ agentsButton.onclick = async () => {
 }
 
 // Paste Your Created Agent and Chat IDs Here:
-agentId = "agt_EQEYgniM"
-chatId = "" //cht_bAHtu_1dNA3EttKbzM1m6
+agentId = "agt_Gw7YP_SR"
+chatId = `${chatId}` //"cht_dxgmL5kQeLbI0ZY8Gu9IZ"
+
+// Z3JvdW5kY3Jld0BsYXVuY2hwYWRjZW50cmUuY29t:cnqyLbSYQAyH0GtpBxYYs ground crew api
+// agt_EQEYgniM mr green ground crew
+
+// dHVhbm5nMDEudG5AZ21haWwuY29t:DUKEq9OFlFc1KixCbq13G google api
+// agt_Gw7YP_SR mr green personal
+
+
+
+// Initialize speech recognition
+if ('webkitSpeechRecognition' in window) {
+  const recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+
+  recognition.onstart = function() {
+    console.log("Voice recognition started. Try speaking into the microphone.");
+  };
+
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript.trim().toLowerCase();
+    console.log("You said: " + transcript);
+
+    if (transcript.includes("hello mr green")) {
+      triggerVideoPlayback();
+    } else if (transcript.includes("connect launchpad")) {
+      recognition.onend = function () {
+        console.log("Speech recognition ended.");
+      };
+      triggerConnect();
+      }
+  };
+
+  recognition.onerror = function(event) {
+    console.error("Speech recognition error:", event.error);
+  };
+
+  recognition.onend = function() {
+    // Restart recognition automatically
+    recognition.start();
+  };
+
+  // Start the speech recognition
+  recognition.start();
+} else {
+  console.warn("Speech recognition not supported in this browser.");
+}
+
+// Function to play the video
+function playVideo() {
+  if (videoElement2.style.display === "none") {
+    stopIdleVideo();
+    // Stop the camera stream if it's playing
+    if (cameraStream.srcObject) {
+      let stream = cameraStream.srcObject;
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    // Show and play the video
+    videoElement2.style.display = "block";
+    videoElement2.play();
+
+    // When the video ends, hide the video element and show the original animation
+    videoElement2.onended = function() {
+      videoElement2.style.display = "none";
+      resumeIdleVideo();
+    };
+  }
+}
+
+function stopIdleVideo() {
+  // Hide and stop the idle video
+  videoElement.style.display = "none";
+  videoElement.pause();
+  videoElement.srcObject = null;
+}
+
+function resumeIdleVideo() {
+  // Resume the idle video
+  videoElement2.style.display = "none";
+  videoElement.style.display = "block";
+  playIdleVideo();
+}
+
+function triggerVideoPlayback() {
+  // Stop the idle video
+  stopIdleVideo();
+
+  // Play the selected video
+  videoElement2.style.display = "block";
+  videoElement2.play();
+
+  // Listen for the video end event to resume idle video
+  videoElement2.onended = () => {
+    resumeIdleVideo();
+  };
+}
+
+
+// // Function to trigger the connect button and handle post-connection actions
+// function triggerConnect() {
+//   console.log("Connecting to Launchpad...");
+//   connectButton.click(); // Simulates a click on the connect button
+
+//   // Add event listener to check when the connection is established
+//   connectButton.addEventListener('click', function() {
+//     // Simulate connection status change after a short delay (e.g., 3 seconds)
+//     setTimeout(() => {
+//       // Assuming connection was successful, change the button color to green
+//       connectButton.style.backgroundColor = 'green';
+
+//       // Automatically activate the microphone button after connection
+//       activateMicrophone();
+//     }, 2000); // Adjust the delay to match the actual connection time
+//   });
+// }
+
+// Function to activate the microphone button version 1
+// function activateMicrophone() {
+//   console.log("Activating microphone...");
+//   recordButton.click(); // Simulates a click on the microphone button
+// }
+
+// // Function to activate the microphone button version 2
+// // function activateMicrophone() {
+// //   if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+// //     console.log("Activating microphone...");
+// //     startSpeechRecognition(); // Start speech recognition automatically
+// //   } else {
+// //     console.log('Waiting for connection...');
+// //     // Retry connection status check after a short delay
+// //     setTimeout(activateMicrophone, 2000); // Retry every 2 seconds (adjust as needed)
+// //   }
+// // }
+
+// Function to activate the microphone button version 3
+// function activateMicrophone() {
+//   if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+//         console.log("Activating microphone...");
+//         recordButton.click(); // Simulates a click on the microphone button
+//       } else {
+//         console.log('Waiting for connection...');
+//         // Retry connection status check after a short delay
+//         setTimeout(activateMicrophone, 2000); // Retry every 2 seconds (adjust as needed)
+//       }
+// }
+
+// Function to activate the microphone button version 4
+function activateMicrophone() {
+  if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+    console.log("Activating microphone...");
+
+    const checkAndClick = () => {
+      if (!recordButton.classList.contains("flashing")) {
+        console.log("Microphone not active yet, retrying...");
+        recordButton.click(); // Simulates a click on the microphone button
+
+        // Retry after a short delay
+        setTimeout(checkAndClick, 2000); // Retry every 2 seconds (adjust as needed)
+      } else {
+        console.log("Microphone is active and flashing.");
+      }
+    };
+
+    checkAndClick(); // Start the checking and clicking loop
+  } else {
+    console.log('Waiting for connection...');
+    // Retry connection status check after a short delay
+    setTimeout(activateMicrophone, 2000); // Retry every 2 seconds (adjust as needed)
+  }
+}
+
+// Function to trigger the connect button and handle post-connection actions version 2
+function triggerConnect() {
+  console.log("Connecting to Launchpad...");
+  connectButton.click(); // Simulates a click on the connect button
+  activateMicrophone();
+}
+
+// // Function to start speech recognition
+// function startSpeechRecognition() {
+//   if ('webkitSpeechRecognition' in window) {
+//     const recognition = new webkitSpeechRecognition();
+//     recognition.continuous = true;
+//     recognition.interimResults = false;
+//     recognition.lang = "en-US";
+
+//     recognition.onstart = function() {
+//       recordButton.disabled = true;
+//       recordButton.classList.add("flashing"); // Start flashing when recording starts
+//       isMessageSent = false; // Reset the flag when recording starts
+//     };
+
+//     recognition.onresult = function(event) {
+//       if (!isMessageSent) { // Check if the message has been sent already
+//         const transcript = event.results[0][0].transcript;
+//         textArea.value = transcript;
+//         recordButton.classList.remove("flashing"); // Stop flashing when recording stops
+//         recordButton.disabled = false;
+
+//         // Automatically send the message after recording stops
+//         startButton.click();
+
+//         // Set the flag to true to prevent multiple sends
+//         isMessageSent = true;
+//       }
+//     };
+
+//     recognition.onerror = function(event) {
+//       console.error(event.error);
+//       recordButton.classList.remove("flashing"); // Stop flashing if there's an error
+//       recordButton.disabled = false;
+//     };
+
+//     recognition.onend = function() {
+//       recordButton.disabled = false;
+//       recordButton.classList.remove("flashing"); // Stop flashing when recording ends
+
+//       // Retry activating the microphone after a short delay if it's not flashing
+//       setTimeout(() => {
+//         if (!recordButton.classList.contains("flashing")) {
+//           activateMicrophone();
+//         }
+//       }, 2000); // Adjust the delay time as needed
+//     };
+
+//     recognition.start(); // Start recognition immediately
+//   } else {
+//     recordButton.disabled = true;
+//     alert('Speech recognition not supported in this browser.');
+//   }
+// }

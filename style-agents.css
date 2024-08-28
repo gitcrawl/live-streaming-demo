@@ -98,6 +98,7 @@ button {
 button#connect-button {
 background-color: green;
 }
+
 button#destroy-button{
   background-color: red;
 }
@@ -156,6 +157,24 @@ textarea {
   background-position: top;
 }
 
+#camera {
+  position: absolute;
+  top: 50px;
+  right: 160px;
+  width: 100%; /* Adjust width as needed */
+  height: auto; /* Maintain aspect ratio */
+  z-index: 10; /* Ensure it stays on top */
+  background-position: bottom;
+}
+
+#video-element{
+  position: relative;
+}
+
+#video-element2{
+  position: relative;
+}
+
 /* #spacing {
   height: 10px; 
 } */
@@ -207,7 +226,7 @@ textarea {
 video {
   /* display: block; */
   /* border-radius: 100px; */
-  background-image: url("matrix_idle.png");
+  /* background-image: url("matrix_idle.png"); */
   /* "emma_idle.png" */
   background-position: top;
   /* position: absolute; */

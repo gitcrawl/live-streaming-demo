@@ -10,9 +10,58 @@
   <link rel="icon" type="image/png" sizes="192x192" href="https://studio.d-id.com/favicon/favicon-192x192.png">
   <!-- adding mic button  -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- adding camera detection -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <title>Person Detection Video Playback</title> -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+  <!-- face api -->
+  <!-- <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api"></script> -->
 </head>
 
 <body>
+  <!-- // add camera component
+  <video id="camera-stream" width="300" height="300" autoplay muted></video>
+  <video id="video-element" width="640" height="480" controls style="display:none;">
+    <source src="mrgreen4.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video> -->
+
+  <!-- <script>
+    const cameraStream = document.getElementById('camera-stream');
+    const videoElement = document.getElementById('video-element');
+
+    // Load the COCO-SSD model
+    cocoSsd.load().then(model => {
+      // Access the camera
+      navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+        cameraStream.srcObject = stream;
+        cameraStream.onloadedmetadata = () => {
+          cameraStream.play();
+          detectFrame(cameraStream, model);
+        };
+      });
+
+      // Detect a person in each frame
+      function detectFrame(video, model) {
+        model.detect(video).then(predictions => {
+          let personDetected = predictions.some(prediction => prediction.class === 'person' && prediction.score > 0.6);
+
+          if (personDetected && videoElement.style.display === "none") {
+            // Stop camera stream
+            stream.getTracks().forEach(track => track.stop());
+            // Show and play the video
+            videoElement.style.display = "block";
+            videoElement.play();
+          } else {
+            requestAnimationFrame(() => detectFrame(video, model));
+          }
+        });
+      }
+    });
+  </script> -->
+
   <div id="content">
 
     <!-- <div id="status">
@@ -35,13 +84,81 @@
       </div>
     </div> -->
 
+    <!-- <div id="camera">
+      // add camera component 
+      <video id="camera-stream" width="300" height="300" autoplay muted></video>
+
+      <script>
+        const cameraStream = document.getElementById('camera-stream');
+        const videoElement = document.getElementById('video-element');
+    
+        // Load the COCO-SSD model
+        cocoSsd.load().then(model => {
+          // Access the camera
+          navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+            cameraStream.srcObject = stream;
+            cameraStream.onloadedmetadata = () => {
+              cameraStream.play();
+              detectFrame(cameraStream, model);
+            };
+          });
+    
+          // Detect a person in each frame
+          function detectFrame(video, model) {
+            model.detect(video).then(predictions => {
+              let personDetected = predictions.some(prediction => prediction.class === 'person' && prediction.score > 0.6);
+    
+              if (personDetected && videoElement.style.display === "none") {
+                // Stop camera stream
+                stream.getTracks().forEach(track => track.stop());
+                // Show and play the video
+                videoElement.style.display = "block";
+                videoElement.play();
+              } else {
+                requestAnimationFrame(() => detectFrame(video, model));
+              }
+            });
+          }
+        });
+      </script>
+    </div>-->
+    
+
     <div id="video-wrapper">
-      <div>
-        <div id="spacing">
+     
+        <div id="camera">
+          <!-- // add camera component -->
+          <video id="camera-stream" width="100" height="100" autoplay muted></video>
         </div>
-        <video id="video-element" width="650" height="1060" object-fit="fill" src="https://agents-results.d-id.com/auth0%7C66551130afa963d3b2c704a4/agt_rXVCHL9a/idle_1723006958521.mp4" autoplay loop muted class="animated"></video>
-      </div>
+
+        <video id="video-element" width="650" height="1060" object-fit="fill" autoplay loop muted class="animated"></video>
+        <video id="video-element2" width="650" height="1060" object-fit="fill" controls style="display:none;">
+          <source src="mrgreen4.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        
     </div>
+
+    <script src="camera.js"></script>
+
+ 
+    <!-- // Detect a person in each frame
+   
+    function detectFrame(video, model) {
+      model.detect(video).then(predictions => {
+        let personDetected = predictions.some(prediction => prediction.class === 'person' && prediction.score > 0.1);
+
+        if (personDetected) {
+          // Stop camera stream
+          stream.getTracks().forEach(track => track.stop());
+          // Show and play the video
+          videoElement2.style.display = "block";
+          videoElement2.play();
+        } else {
+          requestAnimationFrame(() => detectFrame(video, model));
+        }
+      });
+    } -->
 
     <!-- <video autoplay muted loop id="myvideo">
        <source src="https://agents-results.d-id.com/auth0|66551130afa963d3b2c704a4/agt_EQEYgniM/idle_1716856950157.mp4">
@@ -61,6 +178,7 @@
     <h3> Ask Mr Green a question </h3> 
     <textarea id="textArea" cols="50" rows="1" maxlength="280"></textarea> 
     <br>
+    <button id="connect-button" type="button">Connect</button>
     <button id="start-button" type="button">Send</button> 
     <button id="record-button" type="button" class="mic-button">
        <i class="fas fa-microphone"></i>
@@ -84,7 +202,7 @@
       <div id="buttons">
         <button id="agents-button" type="button">Create new Agent with Knowledge</button>
         <br><br>
-        <button id="connect-button" type="button">Connect</button>
+        <!-- <button id="connect-button" type="button">Connect</button> -->
         <button id="destroy-button" type="button">Destroy</button>
       </div>
     </div>
@@ -99,6 +217,8 @@
 
   <script type="module" src="./agents-client-api.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
 </body>
 
 </html>
