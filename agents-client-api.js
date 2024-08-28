@@ -759,26 +759,136 @@ function triggerVideoPlayback() {
 }
 
 
-// Function to trigger the connect button and handle post-connection actions
+// // Function to trigger the connect button and handle post-connection actions
+// function triggerConnect() {
+//   console.log("Connecting to Launchpad...");
+//   connectButton.click(); // Simulates a click on the connect button
+
+//   // Add event listener to check when the connection is established
+//   connectButton.addEventListener('click', function() {
+//     // Simulate connection status change after a short delay (e.g., 3 seconds)
+//     setTimeout(() => {
+//       // Assuming connection was successful, change the button color to green
+//       connectButton.style.backgroundColor = 'green';
+
+//       // Automatically activate the microphone button after connection
+//       activateMicrophone();
+//     }, 2000); // Adjust the delay to match the actual connection time
+//   });
+// }
+
+// Function to activate the microphone button version 1
+// function activateMicrophone() {
+//   console.log("Activating microphone...");
+//   recordButton.click(); // Simulates a click on the microphone button
+// }
+
+// // Function to activate the microphone button version 2
+// // function activateMicrophone() {
+// //   if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+// //     console.log("Activating microphone...");
+// //     startSpeechRecognition(); // Start speech recognition automatically
+// //   } else {
+// //     console.log('Waiting for connection...');
+// //     // Retry connection status check after a short delay
+// //     setTimeout(activateMicrophone, 2000); // Retry every 2 seconds (adjust as needed)
+// //   }
+// // }
+
+// Function to activate the microphone button version 3
+// function activateMicrophone() {
+//   if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+//         console.log("Activating microphone...");
+//         recordButton.click(); // Simulates a click on the microphone button
+//       } else {
+//         console.log('Waiting for connection...');
+//         // Retry connection status check after a short delay
+//         setTimeout(activateMicrophone, 2000); // Retry every 2 seconds (adjust as needed)
+//       }
+// }
+
+// Function to activate the microphone button version 4
+function activateMicrophone() {
+  if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+    console.log("Activating microphone...");
+
+    const checkAndClick = () => {
+      if (!recordButton.classList.contains("flashing")) {
+        console.log("Microphone not active yet, retrying...");
+        recordButton.click(); // Simulates a click on the microphone button
+
+        // Retry after a short delay
+        setTimeout(checkAndClick, 2000); // Retry every 2 seconds (adjust as needed)
+      } else {
+        console.log("Microphone is active and flashing.");
+      }
+    };
+
+    checkAndClick(); // Start the checking and clicking loop
+  } else {
+    console.log('Waiting for connection...');
+    // Retry connection status check after a short delay
+    setTimeout(activateMicrophone, 2000); // Retry every 2 seconds (adjust as needed)
+  }
+}
+
+// Function to trigger the connect button and handle post-connection actions version 2
 function triggerConnect() {
   console.log("Connecting to Launchpad...");
   connectButton.click(); // Simulates a click on the connect button
-
-  // Add event listener to check when the connection is established
-  connectButton.addEventListener('click', function() {
-    // Simulate connection status change after a short delay (e.g., 3 seconds)
-    setTimeout(() => {
-      // Assuming connection was successful, change the button color to green
-      connectButton.style.backgroundColor = 'green';
-
-      // Automatically activate the microphone button after connection
-      activateMicrophone();
-    }, 3000); // Adjust the delay to match the actual connection time
-  });
+  activateMicrophone();
 }
 
-// Function to activate the microphone button
-function activateMicrophone() {
-  console.log("Activating microphone...");
-  recordButton.click(); // Simulates a click on the microphone button
-}
+// // Function to start speech recognition
+// function startSpeechRecognition() {
+//   if ('webkitSpeechRecognition' in window) {
+//     const recognition = new webkitSpeechRecognition();
+//     recognition.continuous = true;
+//     recognition.interimResults = false;
+//     recognition.lang = "en-US";
+
+//     recognition.onstart = function() {
+//       recordButton.disabled = true;
+//       recordButton.classList.add("flashing"); // Start flashing when recording starts
+//       isMessageSent = false; // Reset the flag when recording starts
+//     };
+
+//     recognition.onresult = function(event) {
+//       if (!isMessageSent) { // Check if the message has been sent already
+//         const transcript = event.results[0][0].transcript;
+//         textArea.value = transcript;
+//         recordButton.classList.remove("flashing"); // Stop flashing when recording stops
+//         recordButton.disabled = false;
+
+//         // Automatically send the message after recording stops
+//         startButton.click();
+
+//         // Set the flag to true to prevent multiple sends
+//         isMessageSent = true;
+//       }
+//     };
+
+//     recognition.onerror = function(event) {
+//       console.error(event.error);
+//       recordButton.classList.remove("flashing"); // Stop flashing if there's an error
+//       recordButton.disabled = false;
+//     };
+
+//     recognition.onend = function() {
+//       recordButton.disabled = false;
+//       recordButton.classList.remove("flashing"); // Stop flashing when recording ends
+
+//       // Retry activating the microphone after a short delay if it's not flashing
+//       setTimeout(() => {
+//         if (!recordButton.classList.contains("flashing")) {
+//           activateMicrophone();
+//         }
+//       }, 2000); // Adjust the delay time as needed
+//     };
+
+//     recognition.start(); // Start recognition immediately
+//   } else {
+//     recordButton.disabled = true;
+//     alert('Speech recognition not supported in this browser.');
+//   }
+// }
