@@ -81,11 +81,14 @@ async function createPeerConnection(offer, iceServers) {
       msg = decodeURIComponent(msg.replace(msgType, ""))
       console.log(msg)
       decodedMsg = msg
-      return decodedMsg
+      //adding save message function
+      document.getElementById("msgHistory").innerHTML += `<span style='opacity:0.5'><u>User:</u> ${textArea.value}</span><br>`;
     }
     if (msg.includes("stream/started")) {
       console.log(msg)
       document.getElementById("msgHistory").innerHTML += `<span>${decodedMsg}</span><br><br>`
+      //save message history
+      saveChatHistory();
     }
     else {
       console.log(msg)
@@ -358,6 +361,8 @@ const startButton = document.getElementById('start-button');
 startButton.onclick = async () => {
   // connectionState not supported in firefox
   if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+    document.getElementById("msgHistory").innerHTML += `<span style='opacity:0.5'><u>User:</u> ${textArea.value}</span><br>`;
+  
 
     // Pasting the user's message to the Chat History element
     document.getElementById("msgHistory").innerHTML += `<span style='opacity:0.5'><u>User:</u> ${textArea.value}</span><br>`
@@ -894,3 +899,81 @@ function triggerConnect() {
 //     alert('Speech recognition not supported in this browser.');
 //   }
 // }
+
+
+// // adding save chat history function
+// function saveChatHistory() {
+//   const chatHistory = document.getElementById('msgHistory').innerHTML;
+//   let chatHistory = chatHistoryElement.innerHTML;
+
+//    // Remove HTML tags
+//   chatHistory = chatHistory.replace(/<\/?[^>]+(>|$)/g, "");
+
+//    // Convert special HTML entities back to normal text
+//   chatHistory = chatHistory.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+
+//   const blob = new Blob([chatHistory], { type: 'text/plain' });
+//   const url = URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.style.display = 'none';
+//   a.href = url;
+//   a.download = `chat_history_${new Date().toISOString()}.txt`;
+
+//   document.body.appendChild(a);
+//   a.click();
+
+//   URL.revokeObjectURL(url);
+// }
+
+// function saveChatHistory() {
+//   const chatHistoryElement = document.getElementById('msgHistory');
+//   let chatHistory = chatHistoryElement.innerHTML;
+
+//   // Remove HTML tags
+//   chatHistory = chatHistory.replace(/<\/?[^>]+(>|$)/g, "");
+
+//   // Convert special HTML entities back to normal text
+//   chatHistory = chatHistory.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+
+//   // Save the plain text
+//   const blob = new Blob([chatHistory], { type: 'text/plain' });
+//   const url = URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.style.display = 'none';
+//   a.href = url;
+//   a.download = `chat_history_${new Date().toISOString()}.txt`;
+
+//   document.body.appendChild(a);
+//   a.click();
+
+//   URL.revokeObjectURL(url);
+// }
+
+function saveChatHistory() {
+  const chatHistoryElement = document.getElementById('msgHistory');
+  let chatHistory = chatHistoryElement.innerHTML;
+
+   // Remove HTML tags and format the output
+   chatHistory = chatHistory
+   .replace(/<\/?[^>]+(>|$)/g, "") // Remove HTML tags
+   .replace(/User:/g, "\nUser:") // Add a new line before each "User:" label
+  //  .replace(/<br>/g, "\n") // Replace <br> tags with new lines
+   .replace(/User:(.+)\n/g, "Question:$1\n") // Ensure each user message is followed by a newline
+   .replace(/([^\n])Mr\. Green:/g, "\nMr. Green:") // Ensure Mr. Green's responses are on a new line
+   .replace(/\n\s*\n/g, '\n\n') // Ensure a clean double new line between exchanges
+   .trim(); // Remove leading and trailing whitespace
+
+
+  // Save the plain text
+  const blob = new Blob([chatHistory], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = `chat_history_${new Date().toISOString()}.txt`;
+
+  document.body.appendChild(a);
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
