@@ -114,6 +114,7 @@ button:hover, #destroy-button:hover,#connect-button:hover {
 }
 
 h3{
+  position: relative;
   color: white;
 }
 
