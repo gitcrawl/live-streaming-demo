@@ -88,10 +88,10 @@ async function createPeerConnection(offer, iceServers) {
       console.log(msg)
       document.getElementById("msgHistory").innerHTML += `<span>${decodedMsg}</span><br><br>`
       //save message history
-      saveChatHistory();
+      saveChatHistory(10000);
     }
     else {
-      console.log(msg)
+      console.log()
     }
   };
 
@@ -949,7 +949,8 @@ function triggerConnect() {
 //   URL.revokeObjectURL(url);
 // }
 
-function saveChatHistory() {
+function saveChatHistory(delay) {
+  setTimeout(() => {
   const chatHistoryElement = document.getElementById('msgHistory');
   let chatHistory = chatHistoryElement.innerHTML;
 
@@ -976,4 +977,5 @@ function saveChatHistory() {
   a.click();
 
   URL.revokeObjectURL(url);
+ }, delay); // Delay is specified in milliseconds
 }
