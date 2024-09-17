@@ -19,6 +19,8 @@ let videoIsPlaying;
 let lastBytesReceived;
 let agentId;
 let chatId;
+let recognition;
+let isMessageSent = false; // Flag to track if the message has been sent
 
 const videoElement = document.getElementById('video-element');
 videoElement.setAttribute('playsinline', '');
@@ -30,6 +32,77 @@ const streamingStatusLabel = document.getElementById('streaming-status-label');
 const agentIdLabel = document.getElementById('agentId-label');
 const chatIdLabel = document.getElementById('chatId-label');
 const textArea = document.getElementById("textArea");
+
+
+// Check if the browser supports speech recognition
+if ('webkitSpeechRecognition' in window) {
+  // Initialize the speech recognition object
+  recognition = new webkitSpeechRecognition();
+  recognition.continuous = true; // Enable continuous recognition
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+
+  // Event handler when recognition starts
+  recognition.onstart = function () {
+    recordButton.disabled = true;
+    recordButton.classList.add("flashing"); // Start flashing when recording starts
+    isMessageSent = false; // Reset the flag when recording starts
+  };
+
+  // Event handler for results
+  recognition.onresult = function (event) {
+    const transcript = event.results[event.results.length - 1][0].transcript;
+    textArea.value = transcript;
+
+    if (event.results[event.results.length - 1].isFinal) {
+      recordButton.classList.remove("flashing"); // Stop flashing when recording stops
+      recordButton.disabled = false;
+
+      // Automatically send the message after recording stops
+      startButton.click();
+
+      // Set the flag to true to prevent multiple sends
+      isMessageSent = true;
+    }
+  };
+
+  // Event handler for errors
+  recognition.onerror = function (event) {
+    console.error(event.error);
+    recordButton.classList.remove("flashing"); // Stop flashing if there's an error
+    recordButton.disabled = false;
+  };
+
+  // Event handler when recognition ends
+  recognition.onend = function () {
+    recordButton.disabled = false;
+    // recordButton.classList.remove("flashing"); // Stop flashing when recording ends
+
+    // If you want to restart recognition automatically, uncomment the lines below
+    setTimeout(() => {
+      if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
+        recognition.start();
+      }
+    }, 1); // Adjust the delay time as needed
+  };
+} else {
+  recordButton.disabled = true;
+  alert("Speech recognition not supported in this browser.");
+}
+
+const recordButton = document.getElementById('record-button');
+
+recordButton.onclick = function () {
+  if (
+    peerConnection?.signalingState === "stable" ||
+    peerConnection?.iceConnectionState === "connected"
+  ) {
+    recognition.start();
+  } else {
+    recordButton.disabled = true;
+    alert("Make sure you are connected.");
+  }
+};
 
 // Play the idle video when the page is loaded
 window.onload = (event) => {
@@ -406,77 +479,7 @@ startButton.onclick = async () => {
 
 // Adding recording function
 
-const recordButton = document.getElementById('record-button');
-let isMessageSent = false; //Flag to track if the message has been sent
-recordButton.onclick = async () => {
-  if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
-    if ('webkitSpeechRecognition' in window)  {
-    const recognition = new webkitSpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = "en-US";
-  
-    recognition.onstart = function() {
-      recordButton.disabled = true;
-      // recordButton.textContent = "Listening...";
-      recordButton.classList.add("flashing"); // Start flashing when recording starts
-      isMessageSent = false; // Reset the flag when recording starts
-    };
-  
-    recognition.onresult = function(event) {
-      if (!isMessageSent) { // Check if the message has been sent already
-      const transcript = event.results[0][0].transcript;
-      textArea.value = transcript;
-      // recordButton.textContent = "Record";
-      recordButton.classList.remove("flashing"); //stop flashing when recording stops
-      recordButton.disabled = false;
 
-      // Display the user's message in the chat history
-      // document.getElementById(
-      //   'msgHistory'
-      // ).innerHTML += `<span style='opacity:0.5'><u>User:</u> ${transcript}</span><br>`;
-
-      // Automatically send the message after recording stops
-      startButton.click();
-
-      // Clear the textarea after sending the message
-      // clearMessage();
-
-      // Set the flag to true to prevent multiple sends
-      isMessageSent = true;
-     }
-    };
-  
-    recognition.onerror = function(event) {
-      console.error(event.error);
-      // recordButton.textContent = "Record";
-      recordButton.classList.remove("flashing"); //stop flashing if there's an error
-      recordButton.disabled = false;
-    };
-  
-    recognition.onend = function() {
-      recordButton.disabled = false;
-      // recordButton.textContent = "Record";
-      recordButton.classList.remove("flashing"); // stop flashing when recording ends
-      
-        // Delay the restart of speech recognition by 3 seconds (3000 milliseconds)
-        setTimeout(() => {
-        if (peerConnection?.signalingState === 'stable' || peerConnection?.iceConnectionState === 'connected') {
-          recognition.start();
-        }
-      }, 2000); // Adjust the delay time as needed
-    };
-  
-    recordButton.onclick = function() {
-      recognition.start();
-    };
-    } 
-    else {recordButton.disabled = true;
-      alert('Speech recognition not supported in this browser.');
-    }
-  } else {recordButton.disabled = true;
-    alert('make sure you are connected.');}
-}
 
 // Function to clear the textarea
 function clearMessage(){
