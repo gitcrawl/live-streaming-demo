@@ -622,7 +622,7 @@ async function agentsAPIworkflow() {
         "type": "openai",
         "provider": "openai",
         "model": "gpt-4o-mini",
-        "instructions": "The agent is to be friendly and conversational, it feels like chatting to a friend."
+        "instructions": "The agent is to be informative, friendly, conversational and have a sense of humor."
       },
       "preview_name": "Mr Green"
     }
@@ -667,7 +667,7 @@ agentsButton.onclick = async () => {
 }
 
 // Paste Your Created Agent and Chat IDs Here:
-agentId = "agt_Gw7YP_SR"
+agentId = "agt_EQEYgniM"
 chatId = `${chatId}` //"cht_dxgmL5kQeLbI0ZY8Gu9IZ"
 
 // Z3JvdW5kY3Jld0BsYXVuY2hwYWRjZW50cmUuY29t:cnqyLbSYQAyH0GtpBxYYs ground crew api
